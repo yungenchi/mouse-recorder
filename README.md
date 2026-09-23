@@ -1,695 +1,126 @@
 # Mouse Recorder
 
-A lightweight command-line mouse macro recorder written in Python.
+Mouse Recorder records your mouse movements, clicks, and scrolling so you can
+play the same actions again later. It is useful for repeating simple mouse
+workflows on macOS.
 
-Mouse Recorder can record mouse movements, clicks, and scrolling, then replay them later with approximately the same timing.
+## Download
 
-The project is designed primarily for macOS, but the core functionality should also work on Windows and Linux where `pynput` is supported.
-
-## Features
-
-- Record mouse movement
-- Record left, right, and middle mouse clicks
-- Record mouse wheel scrolling
-- Preserve timing between mouse events
-- Replay recorded mouse actions
-- Adjustable playback speed
-- Repeat playback multiple times
-- Configurable playback delay
-- Emergency playback stop
-- JSON-based recording files
-- Simple command-line interface
-- macOS permission diagnostics
-
-## Requirements
-
-- macOS
-- Homebrew
-
-## Installation
-
-### Install with Homebrew
-
-Mouse Recorder is distributed as a macOS command-line tool through a Homebrew
-Cask. Install it with:
+Mouse Recorder currently supports Apple Silicon Macs (M1, M2, M3, and newer).
+The easiest way to install it is with Homebrew:
 
 ```bash
 brew install --cask yungenchi/mouse-recorder/mouse-recorder
 ```
 
-Then verify and start it:
+If your Mac says `brew: command not found`, install Homebrew first from
+[brew.sh](https://brew.sh), then run the command above again.
 
-```bash
-mouse-recorder doctor
-mouse-recorder
-```
+You can also download the latest release from the
+[GitHub Releases page](https://github.com/yungenchi/mouse-recorder/releases).
+The Homebrew install is recommended for most people.
 
-Homebrew installs the Apple Silicon (`arm64`) executable. No Python, uv, pipx,
-virtual environment, or project clone is required.
+## First-time setup
 
-Update or remove it with:
-
-```bash
-brew upgrade --cask mouse-recorder
-brew uninstall --cask mouse-recorder
-```
-
-The first launch may require Accessibility and Input Monitoring permission in
-**System Settings -> Privacy & Security**.
-
-If `doctor` detects missing macOS permission, it opens both settings pages
-automatically. macOS still requires you to add Mouse Recorder and enable the
-switches; an application cannot approve its own privacy permissions.
-
-### Development installation
-
-Use this option only when you want to modify the source code or run tests.
-
-### Maintainer: build a macOS release locally
-
-Releases are built locally, not by GitHub Actions. On an Apple Silicon Mac:
-
-```bash
-PYTHON_BIN="$(uv python find 3.11)" ./packaging/build_macos.sh
-```
-
-The script currently supports Apple Silicon (`arm64`) only. It creates a
-temporary build environment and writes the zip file and `SHA256SUMS` to
-`release/`.
-
-After verifying the build, create the GitHub release from the project root:
-
-```bash
-gh release create v0.1.0 release/*.zip release/SHA256SUMS \
-  --title v0.1.0 --generate-notes
-```
-
-The Homebrew Cask is updated with the release URLs and checksums afterwards.
-
-#### 1. Clone or create the project
-
-If you are creating the project manually:
-
-```bash
-mkdir mouse-recorder
-cd mouse-recorder
-```
-
-Create the project structure described below and add the provided files.
-
-If the project is stored in Git:
-
-```bash
-git clone <repository-url>
-cd mouse-recorder
-```
-
-#### 2. Check your Python version
-
-```bash
-python3 --version
-```
-
-You should see Python 3.11 or newer.
-
-Example:
-
-```text
-Python 3.12.7
-```
-
-#### 3. Create a virtual environment
-
-```bash
-python3 -m venv .venv
-```
-
-Activate it on macOS or Linux:
-
-```bash
-source .venv/bin/activate
-```
-
-On Windows PowerShell:
-
-```powershell
-.venv\Scripts\Activate.ps1
-```
-
-After activation, your terminal should look similar to:
-
-```text
-(.venv) user@computer mouse-recorder %
-```
-
-#### 4. Install the project in editable mode
-
-From the project root:
-
-```bash
-pip install -e .
-```
-
-The `-e` flag installs the project in editable mode.
-
-This means changes made to the Python source files will immediately be reflected when running the CLI.
-
-#### 5. Verify the installation
-
-Run:
-
-```bash
-mouse-recorder --help
-```
-
-You should see the available commands.
-
-You can also run:
-
-```bash
-python -m mouse_recorder --help
-```
-
-## macOS Permissions
-
-macOS requires Accessibility permission before an application can control the mouse.
-
-Open:
-
-```text
-System Settings
-→ Privacy & Security
-→ Accessibility
-```
-
-Enable permission for the application that is running Mouse Recorder.
-
-Depending on how you launch the program, this may be:
-
-- Terminal
-- iTerm
-- Visual Studio Code
-- PyCharm
-- another terminal or IDE
-
-You may also need permission under:
-
-```text
-System Settings
-→ Privacy & Security
-→ Input Monitoring
-```
-
-After changing permissions, restart the terminal or IDE before trying again.
-
-You can check the environment using:
+macOS must allow Mouse Recorder to control the mouse and listen for keyboard
+shortcuts. After installing, run:
 
 ```bash
 mouse-recorder doctor
 ```
 
-## Usage
+This checks your permissions and opens the required macOS settings pages when
+something is missing.
 
-### Persistent terminal mode
+### If macOS blocks the first launch
 
-For the simplest workflow, start Mouse Recorder without a command:
+You may see a message saying that macOS cannot verify Mouse Recorder. Choose
+**Done** (do not move it to the Trash), then open **System Settings > Privacy &
+Security**. Scroll down and choose **Open Anyway** for Mouse Recorder. You may
+need to enter your Mac password.
+
+In **System Settings > Privacy & Security**, enable Mouse Recorder in:
+
+- **Accessibility**
+- **Input Monitoring**
+
+After enabling both permissions, run the check again:
+
+```bash
+mouse-recorder doctor
+```
+
+When both permissions show `OK`, Mouse Recorder is ready to use. If macOS asks
+you to add the application manually, add Mouse Recorder and enable its switch.
+
+## Use Mouse Recorder
+
+Start the app:
 
 ```bash
 mouse-recorder
 ```
 
-The default hotkeys are `F8` for recording and `F9` for playback. The terminal
-shows the active button names when it starts.
+When the terminal shows that Mouse Recorder is ready, switch to the app where
+you want to repeat a task.
 
-To change them, run setup and press the two keys you want to use:
+Use the default global hotkeys:
+
+- `F8`: start or stop recording
+- `F9`: play the latest recording
+- `ESC`: stop playback
+- `Ctrl+C`: quit Mouse Recorder
+
+Move and click the mouse while recording. Press `F8` again to stop. The latest
+recording is saved automatically. Press `F9` to play it back.
+
+The first playback starts after a short delay so you can switch to the target
+application. Playback repeats until you stop it with `F9` or `ESC`.
+
+> **Safety tip:** For your first playback, record a simple harmless action and
+> test it once. Keep `ESC` available so you can stop playback immediately.
+
+On many Mac laptops, you may need to hold `fn` while pressing `F8` or `F9`.
+You can also change the hotkeys with `mouse-recorder setup`.
+
+## Optional commands
+
+Save and play recordings with a name instead of using the latest recording:
+
+```bash
+mouse-recorder record demo
+mouse-recorder play demo
+```
+
+Useful options:
+
+```bash
+mouse-recorder play demo --speed 2
+mouse-recorder play demo --repeat 5
+mouse-recorder list
+```
+
+Run `mouse-recorder --help` to see all commands.
+
+## Change the hotkeys
+
+To choose different keys for recording and playback, run:
 
 ```bash
 mouse-recorder setup
 ```
 
-The choices are saved locally and reused next time.
+Follow the prompts, then use the new keys the next time you start
+Mouse Recorder.
 
-Keep this terminal open and use the global hotkeys:
+## Notes
 
-```text
-your key  Start / stop recording
-your key  Start playback
-ESC      Stop playback
-Ctrl+C   Exit Mouse Recorder
-```
-
-In persistent mode, press the playback key again or `ESC` to stop an infinite loop.
-
-If you press the playback key while recording is still active, Mouse Recorder
-automatically stops and saves the recording first, then starts playing it.
-
-For an explicit command-line loop:
+- Playback works best with the same display arrangement and resolution used
+  during recording.
+- Recordings are stored in `~/.mouse-recorder/recordings/`.
+- To update or remove the app:
 
 ```bash
-mouse-recorder play demo --loop
+brew upgrade --cask mouse-recorder
+brew uninstall --cask mouse-recorder
 ```
-
-Recordings from this mode are saved as `latest.json`. The named commands below
-remain available for managing recordings explicitly.
-
-### Explicit command mode
-
-The persistent terminal mode above is the recommended workflow. The following
-commands are an optional way to record and manage a named recording directly
-from the command line.
-
-```bash
-mouse-recorder record demo
-```
-
-While recording:
-
-```text
-Recording: demo
-
-Press ESC to stop recording.
-```
-
-Mouse Recorder captures:
-
-- mouse movement
-- left click
-- right click
-- middle click
-- scrolling
-- event timing
-
-When recording stops, the recording is saved automatically.
-
-### List recordings
-
-```bash
-mouse-recorder list
-```
-
-Example:
-
-```text
-NAME       DURATION    EVENTS
-demo       12.4s       428
-login      5.8s        183
-```
-
-### Show recording information
-
-```bash
-mouse-recorder info demo
-```
-
-Example:
-
-```text
-Name:       demo
-Duration:   12.4 seconds
-Events:     428
-Resolution: 2560 x 1440
-```
-
-### Play a recording
-
-```bash
-mouse-recorder play demo
-```
-
-By default, playback waits a few seconds before starting so you have time to switch to the correct application.
-
-Example:
-
-```text
-Playing: demo
-
-Starting in 3 seconds...
-
-Press ESC to abort playback.
-```
-
-### Change playback speed
-
-Play at double speed:
-
-```bash
-mouse-recorder play demo --speed 2
-```
-
-Play at half speed:
-
-```bash
-mouse-recorder play demo --speed 0.5
-```
-
-### Repeat playback
-
-```bash
-mouse-recorder play demo --repeat 5
-```
-
-This plays the recording five times.
-
-Speed and repeat can be combined:
-
-```bash
-mouse-recorder play demo --speed 2 --repeat 5
-```
-
-### Change the startup delay
-
-```bash
-mouse-recorder play demo --delay 5
-```
-
-This gives you five seconds before playback starts.
-
-### Delete a recording
-
-```bash
-mouse-recorder delete demo
-```
-
-## Emergency Stop
-
-During playback, press:
-
-```text
-ESC
-```
-
-to stop immediately.
-
-Playback should always be designed so the emergency-stop listener operates independently from the recorded mouse events.
-
-The player also releases any mouse buttons during cleanup to reduce the chance of leaving a button in a pressed state after interruption.
-
-## Recording Storage
-
-Recordings are stored outside of the project directory.
-
-Default location:
-
-```text
-~/.mouse-recorder/recordings/
-```
-
-Example:
-
-```text
-~/.mouse-recorder/
-└── recordings/
-    ├── demo.json
-    └── login.json
-```
-
-A recording is stored as JSON.
-
-Example:
-
-```json
-{
-  "version": 1,
-  "name": "demo",
-  "screen": {
-    "width": 2560,
-    "height": 1440
-  },
-  "duration": 3.542,
-  "events": [
-    {
-      "t": 0.0,
-      "type": "move",
-      "x": 842,
-      "y": 412
-    },
-    {
-      "t": 0.412,
-      "type": "button",
-      "button": "left",
-      "pressed": true,
-      "x": 901,
-      "y": 430
-    },
-    {
-      "t": 0.503,
-      "type": "button",
-      "button": "left",
-      "pressed": false,
-      "x": 901,
-      "y": 430
-    }
-  ]
-}
-```
-
-Because recordings use JSON, they can also be inspected or edited manually.
-
-## Screen Resolution
-
-Mouse Recorder uses absolute screen coordinates.
-
-For example:
-
-```text
-x = 1200
-y = 700
-```
-
-Because of this, playback works best when the screen configuration matches the configuration used during recording.
-
-The recording stores information about the screen resolution.
-
-If the current resolution differs from the recorded resolution, Mouse Recorder should display a warning before playback.
-
-This is particularly important when using:
-
-- multiple monitors
-- different display scaling
-- external monitors
-- different resolutions
-- different monitor arrangements
-
-## Mouse Movement Sampling
-
-Raw mouse movement can generate a very large number of events.
-
-Mouse Recorder therefore throttles movement events instead of saving every tiny movement.
-
-The target recording rate is approximately:
-
-```text
-100 Hz
-```
-
-or one movement sample every:
-
-```text
-10 ms
-```
-
-Clicks and scroll events are never intentionally discarded by movement throttling.
-
-## CLI Commands
-
-The initial CLI contains:
-
-```bash
-mouse-recorder record NAME
-mouse-recorder play NAME
-mouse-recorder list
-mouse-recorder info NAME
-mouse-recorder delete NAME
-mouse-recorder doctor
-```
-
-Run:
-
-```bash
-mouse-recorder --help
-```
-
-for the complete command list.
-
-For help with a specific command:
-
-```bash
-mouse-recorder play --help
-```
-
-## Project Structure
-
-```text
-mouse-recorder/
-├── README.md
-├── pyproject.toml
-├── .gitignore
-│
-├── src/
-│   └── mouse_recorder/
-│       ├── __init__.py
-│       ├── __main__.py
-│       ├── cli.py
-│       ├── models.py
-│       ├── storage.py
-│       ├── recorder.py
-│       ├── player.py
-│       └── doctor.py
-│
-└── tests/
-    ├── __init__.py
-    ├── test_models.py
-    ├── test_storage.py
-    └── test_player.py
-```
-
-### `cli.py`
-
-Defines the command-line interface.
-
-Responsibilities:
-
-- `record`
-- `play`
-- `list`
-- `info`
-- `delete`
-- `doctor`
-- command arguments and options
-- user-facing terminal output
-
-### `models.py`
-
-Defines the internal recording data structures.
-
-Responsibilities:
-
-- mouse event models
-- recording metadata
-- JSON serialization
-- JSON deserialization
-
-### `storage.py`
-
-Handles recording files.
-
-Responsibilities:
-
-- recording directory creation
-- save recordings
-- load recordings
-- list recordings
-- delete recordings
-
-### `recorder.py`
-
-Handles mouse recording.
-
-Responsibilities:
-
-- mouse listeners
-- mouse movement
-- mouse buttons
-- scrolling
-- timestamps
-- movement throttling
-- recording stop handling
-
-### `player.py`
-
-Handles playback.
-
-Responsibilities:
-
-- event timing
-- mouse movement
-- mouse clicks
-- scrolling
-- playback speed
-- repeat
-- emergency stop
-- cleanup
-
-### `doctor.py`
-
-Checks whether the current system appears ready to record and replay mouse actions.
-
-Responsibilities:
-
-- operating system information
-- screen information
-- recording directory
-- mouse-control checks
-- macOS permission hints
-
-### `__main__.py`
-
-Allows the application to run with:
-
-```bash
-python -m mouse_recorder
-```
-
-### `tests/`
-
-Contains automated tests for functionality that does not require physically moving the user's mouse.
-
-## Development
-
-Install the project in editable mode:
-
-```bash
-pip install -e .
-```
-
-Run the CLI:
-
-```bash
-mouse-recorder --help
-```
-
-Run the tests:
-
-```bash
-pytest
-```
-
-The `tests/` directory is part of the source repository and should be kept on
-GitHub. It is not included in the installed wheel. Build outputs, virtual
-environments, caches, local recordings, and local configuration are excluded
-by `.gitignore`.
-
-## Design Principles
-
-The first version intentionally remains small.
-
-Mouse Recorder is not intended to be a complete desktop automation framework.
-
-Version 0.1 focuses on:
-
-```text
-record
-→ save
-→ inspect
-→ replay
-```
-
-Features such as keyboard recording, image recognition, application detection, conditional logic, and graphical macro editing are intentionally outside the initial scope.
-
-## Safety
-
-Mouse automation can interact with applications very quickly.
-
-Before replaying a recording:
-
-1. Make sure the expected application is open.
-2. Make sure the screen layout matches the recording.
-3. Keep the emergency-stop key available.
-4. Test new recordings with a single playback before using repeat mode.
-5. Avoid replaying macros blindly on destructive or sensitive interfaces.
-
-## License
-
-Choose a license before publishing the project publicly.
-
-For a small open-source utility, the MIT License is a common option.
