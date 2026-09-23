@@ -23,112 +23,68 @@ The project is designed primarily for macOS, but the core functionality should a
 
 ## Requirements
 
-- Python 3.11 or newer
-- macOS, Windows, or Linux
-
-Python 3.12+ is recommended.
+- macOS
+- Homebrew
 
 ## Installation
 
-### Easiest: download the standalone macOS executable
+### Install with Homebrew
 
-For normal use, download the latest release from the project's GitHub
-**Releases** page. Choose the file matching your Mac:
-
-- `mouse-recorder-macos-arm64.zip` for Apple Silicon Macs (M1, M2, M3, and newer)
-- `mouse-recorder-macos-x86_64.zip` for Intel Macs
-
-Then:
-
-1. Download and unzip the file.
-2. Open Terminal and change to the unzipped folder.
-3. Start it with `./mouse-recorder-macos-arm64` or
-  `./mouse-recorder-macos-x86_64`.
-
-The first time macOS blocks the executable, open **System Settings → Privacy &
-Security** and allow it. Mouse control still requires **Accessibility** and
-possibly **Input Monitoring** permission for the executable.
-
-This download does not require Python, uv, pipx, or a virtual environment.
-
-### Recommended: install as a command-line tool
-
-Mouse Recorder is a command-line tool, so `pipx` or `uv tool` is recommended.
-They install Mouse Recorder in its own environment and make the
-`mouse-recorder` command available in your terminal.
-
-#### Using pipx
-
-After Mouse Recorder is published on PyPI:
-
-Install `pipx` first if needed:
+Mouse Recorder is distributed as a macOS command-line tool through a Homebrew
+Cask. Install it with:
 
 ```bash
-python3 -m pip install --user pipx
-python3 -m pipx ensurepath
+brew install --cask yungenchi/mouse-recorder/mouse-recorder
 ```
 
-Restart your terminal, then install Mouse Recorder:
-
-```bash
-pipx install mouse-recorder
-```
-
-#### Using uv
-
-After Mouse Recorder is published on PyPI:
-
-```bash
-uv tool install mouse-recorder
-```
-
-After installation, verify it:
+Then verify and start it:
 
 ```bash
 mouse-recorder doctor
-```
-
-Start the persistent terminal mode:
-
-```bash
 mouse-recorder
 ```
 
-### Install a downloaded package
+Homebrew installs the Apple Silicon (`arm64`) executable. No Python, uv, pipx,
+virtual environment, or project clone is required.
 
-When a release provides a wheel file such as
-`mouse_recorder-0.1.0-py3-none-any.whl`, download it from the project's
-Release page and install it with either:
-
-```bash
-pipx install ./mouse_recorder-0.1.0-py3-none-any.whl
-```
-
-or:
+Update or remove it with:
 
 ```bash
-uv tool install ./mouse_recorder-0.1.0-py3-none-any.whl
+brew upgrade --cask mouse-recorder
+brew uninstall --cask mouse-recorder
 ```
 
-The source archive (`.tar.gz`) is intended for package builders. Most users
-should download the `.whl` file instead.
+The first launch may require Accessibility and Input Monitoring permission in
+**System Settings -> Privacy & Security**.
 
-To build and install the current project locally:
+If `doctor` detects missing macOS permission, it opens both settings pages
+automatically. macOS still requires you to add Mouse Recorder and enable the
+switches; an application cannot approve its own privacy permissions.
+
+### Development installation
+
+Use this option only when you want to modify the source code or run tests.
+
+### Maintainer: build a macOS release locally
+
+Releases are built locally, not by GitHub Actions. On an Apple Silicon Mac:
 
 ```bash
-uv build
-uv tool install ./dist/mouse_recorder-0.1.0-py3-none-any.whl
+PYTHON_BIN="$(uv python find 3.11)" ./packaging/build_macos.sh
 ```
 
-The built files are written to the `dist/` directory.
+The script currently supports Apple Silicon (`arm64`) only. It creates a
+temporary build environment and writes the zip file and `SHA256SUMS` to
+`release/`.
 
-For a GitHub release, upload the wheel from `dist/` as a release asset. The
-`dist/` directory itself is intentionally ignored by Git and should not be
-committed to the source repository.
+After verifying the build, create the GitHub release from the project root:
 
-### Developer installation
+```bash
+gh release create v0.1.0 release/*.zip release/SHA256SUMS \
+  --title v0.1.0 --generate-notes
+```
 
-Use this option when you want to modify the source code.
+The Homebrew Cask is updated with the release URLs and checksums afterwards.
 
 #### 1. Clone or create the project
 

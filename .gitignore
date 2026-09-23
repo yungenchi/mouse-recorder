@@ -1,4 +1,6 @@
 .venv/
+.build-venv/
+Makefile
 __pycache__/
 *.py[cod]
 .pytest_cache/
@@ -13,6 +15,7 @@ dist/
 .python-version
 .mouse-recorder/
 release/
+mouse-recorder.spec
 
 # Local recordings
 recordings/

@@ -1,14 +1,22 @@
 """User-facing Typer CLI."""
 
 import json
+import platform
 from pathlib import Path
 from threading import Event, Lock, Thread
 
 import typer
 from rich.console import Console
+from rich.markup import escape
 from rich.table import Table
 
-from .doctor import run_diagnostics, screen_size
+from .doctor import (
+    macos_accessibility_trusted,
+    macos_input_monitoring_trusted,
+    open_permission_settings,
+    run_diagnostics,
+    screen_size,
+)
 from .player import Player
 from .recorder import Recorder
 from .storage import RecordingStore
@@ -71,7 +79,12 @@ def capture_key(prompt: str) -> str:
     listener = keyboard.Listener(on_press=on_press)
     listener.start()
     listener.join()
+    console.print()
     return captured[0]
+
+
+def hotkey_label(identifier: str) -> str:
+    return escape(f"[{key_label(identifier)}]")
 
 
 def setup_hotkeys() -> dict[str, str]:
@@ -141,7 +154,7 @@ def interactive() -> None:
             thread.start()
             console.print(
                 f"[bold red]Recording started[/bold red] "
-                f"(press [{key_label(hotkeys['record_key'])}] to stop)"
+                f"(press {hotkey_label(hotkeys['record_key'])} to stop)"
             )
 
     def start_playback() -> None:
@@ -214,9 +227,9 @@ def interactive() -> None:
 
     console.print("[bold]Mouse Recorder[/bold] is ready")
     console.print(
-        f"[{key_label(hotkeys['record_key'])}] start / stop recording   "
-        f"[{key_label(hotkeys['play_key'])}] start playback   "
-        "[ESC] stop playback   [Ctrl+C] exit"
+        f"{hotkey_label(hotkeys['record_key'])} start / stop recording   "
+        f"{hotkey_label(hotkeys['play_key'])} start playback   "
+        f"{escape('[ESC]')} stop playback   {escape('[Ctrl+C]')} exit"
     )
     listener = keyboard.Listener(on_press=on_press)
     listener.start()
@@ -325,7 +338,23 @@ def delete(name: str, force: bool = typer.Option(False, "--force", "-f")) -> Non
 
 @app.command()
 def doctor() -> None:
+    """Check the environment and open macOS permission settings when needed."""
     console.print("\n".join(run_diagnostics()))
+    if platform.system() == "Darwin" and (
+        not macos_accessibility_trusted() or not macos_input_monitoring_trusted()
+    ):
+        try:
+            open_permission_settings()
+        except RuntimeError as exc:
+            raise typer.ClickException(str(exc)) from exc
+        console.print(
+            "[yellow]Accessibility permission is required. "
+            "Opened Accessibility and Input Monitoring settings.[/yellow]"
+        )
+        console.print(
+            "[yellow]Add Mouse Recorder and enable its switches, then run "
+            "mouse-recorder doctor again.[/yellow]"
+        )
 
 
 @app.command()
