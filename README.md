@@ -30,6 +30,27 @@ Python 3.12+ is recommended.
 
 ## Installation
 
+### Easiest: download the standalone macOS executable
+
+For normal use, download the latest release from the project's GitHub
+**Releases** page. Choose the file matching your Mac:
+
+- `mouse-recorder-macos-arm64.zip` for Apple Silicon Macs (M1, M2, M3, and newer)
+- `mouse-recorder-macos-x86_64.zip` for Intel Macs
+
+Then:
+
+1. Download and unzip the file.
+2. Open Terminal and change to the unzipped folder.
+3. Start it with `./mouse-recorder-macos-arm64` or
+  `./mouse-recorder-macos-x86_64`.
+
+The first time macOS blocks the executable, open **System Settings → Privacy &
+Security** and allow it. Mouse control still requires **Accessibility** and
+possibly **Input Monitoring** permission for the executable.
+
+This download does not require Python, uv, pipx, or a virtual environment.
+
 ### Recommended: install as a command-line tool
 
 Mouse Recorder is a command-line tool, so `pipx` or `uv tool` is recommended.

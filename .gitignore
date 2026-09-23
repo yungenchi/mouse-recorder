@@ -12,6 +12,7 @@ dist/
 .env.*
 .python-version
 .mouse-recorder/
+release/
 
 # Local recordings
 recordings/
